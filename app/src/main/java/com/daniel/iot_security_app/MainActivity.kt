@@ -381,6 +381,81 @@ class MainActivity : AppCompatActivity() { // <-- 1. Cambiamos la herencia
 
     /**
      * Paso 4: Se seleccionó un dispositivo, intentar conectar (versión Corutinas)
+//     */
+//    private fun connectToDevice(device: BluetoothDevice) {
+//
+//        textViewSystemStatus.text = "Conectando a: ${device.name}..."
+//        textViewConnectionStatus.text = "Conectando..."
+//
+//        // 1. Detenemos el escaneo
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) { return }
+//        if (bluetoothAdapter.isDiscovering) {
+//            bluetoothAdapter.cancelDiscovery()
+//        }
+//
+//        // --- SIMULACIÓN ---
+//        Handler(Looper.getMainLooper()).postDelayed({
+//
+//            // 7. Actualizamos la UI
+//            textViewSystemStatus.text = "¡Conectado a ${device.name}! (Simulado)"
+//            textViewConnectionStatus.text = "Conexión establecida (Simulado)"
+//            switchAlarm.isEnabled = true
+//
+//            buttonBuzzerTest.isEnabled = true
+//            buttonLightTest.isEnabled = true
+//
+//            // 8.Empezamos a "leer" (simulando)
+//            // En el mundo real, pasaríamos el 'bluetoothSocket'
+//            // pero como es nulo, solo probamos la lógica de la UI
+//
+//            // (Para probar, puedes llamar a handleReceivedData manualmente)
+//            handleReceivedData("Movimiento detectado (Prueba)")
+//
+//        }, 2000)
+//
+//        // 2. Lanzamos una Corutina para hacer la conexión en segundo plano
+//////        lifecycleScope.launch(Dispatchers.IO) { // Hilo de fondo (IO)
+//////
+//////            var socket: BluetoothSocket? = null
+//////            try {
+//////                // 3. Chequeo de permiso (otra vez, por seguridad)
+//////                if (ActivityCompat.checkSelfPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+//////                    throw SecurityException("Permiso BLUETOOTH_CONNECT denegado")
+//////                }
+//////
+//////                // 4. Creamos el socket
+//////                socket = device.createRfcommSocketToServiceRecord(MY_UUID)
+//////
+//////                // 5. ¡Conectamos! Esta es la llamada bloqueante
+//////                socket?.connect()
+//////
+//////                // 6. ¡ÉXITO!
+//////                bluetoothSocket = socket // Guardamos el socket globalmente
+//////
+//////                // 7. Actualizamos la UI (volviendo al hilo principal)
+//////                withContext(Dispatchers.Main) {
+//////                    textViewSystemStatus.text = "¡Conectado a ${device.name}!"
+//////                    textViewConnectionStatus.text = "Conexión establecida"
+//////                    // Habilitamos los controles
+//////                    //findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchAlarm).isEnabled = true
+//////                     switchAlarm.isEnabled = true //
+//////                     }
+//////
+//////                // 8. (El próximo paso será empezar a leer datos)
+//////                // startReadingData(bluetoothSocket)
+//////
+//////            } catch (e: Exception) {
+//////                // 9. Si algo falla...
+//////                socket?.close()
+//////                withContext(Dispatchers.Main) {
+//////                    textViewSystemStatus.text = "Error de conexión"
+//////                    textViewConnectionStatus.text = "Fallo al conectar: ${e.message}"
+//////                }
+//////            }
+//////        }
+//    }
+    /**
+     * Paso 4: Se seleccionó un dispositivo, intentar conectar (versión REAL)
      */
     private fun connectToDevice(device: BluetoothDevice) {
 
@@ -393,67 +468,52 @@ class MainActivity : AppCompatActivity() { // <-- 1. Cambiamos la herencia
             bluetoothAdapter.cancelDiscovery()
         }
 
-        // --- SIMULACIÓN ---
-        Handler(Looper.getMainLooper()).postDelayed({
+        // 2. (El bloque 'Handler' de simulación se ha eliminado)
 
-            // 7. Actualizamos la UI
-            textViewSystemStatus.text = "¡Conectado a ${device.name}! (Simulado)"
-            textViewConnectionStatus.text = "Conexión establecida (Simulado)"
-            switchAlarm.isEnabled = true
+        // 3. Lanzamos una Corutina para hacer la conexión en segundo plano
+        lifecycleScope.launch(Dispatchers.IO) { // Hilo de fondo (IO)
 
-            buttonBuzzerTest.isEnabled = true
-            buttonLightTest.isEnabled = true
+            var socket: BluetoothSocket? = null
+            try {
+                // 4. Chequeo de permiso (otra vez, por seguridad)
+                if (ActivityCompat.checkSelfPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                    throw SecurityException("Permiso BLUETOOTH_CONNECT denegado")
+                }
 
-            // 8.Empezamos a "leer" (simulando)
-            // En el mundo real, pasaríamos el 'bluetoothSocket'
-            // pero como es nulo, solo probamos la lógica de la UI
+                // 5. Creamos el socket
+                socket = device.createRfcommSocketToServiceRecord(MY_UUID)
 
-            // (Para probar, puedes llamar a handleReceivedData manualmente)
-            handleReceivedData("Movimiento detectado (Prueba)")
+                // 6. ¡Conectamos! Esta es la llamada bloqueante
+                socket?.connect()
 
-        }, 2000)
+                // 7. ¡ÉXITO!
+                bluetoothSocket = socket // Guardamos el socket globalmente
 
-        // 2. Lanzamos una Corutina para hacer la conexión en segundo plano
-//        lifecycleScope.launch(Dispatchers.IO) { // Hilo de fondo (IO)
-//
-//            var socket: BluetoothSocket? = null
-//            try {
-//                // 3. Chequeo de permiso (otra vez, por seguridad)
-//                if (ActivityCompat.checkSelfPermission(this@MainActivity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-//                    throw SecurityException("Permiso BLUETOOTH_CONNECT denegado")
-//                }
-//
-//                // 4. Creamos el socket
-//                socket = device.createRfcommSocketToServiceRecord(MY_UUID)
-//
-//                // 5. ¡Conectamos! Esta es la llamada bloqueante
-//                socket?.connect()
-//
-//                // 6. ¡ÉXITO!
-//                bluetoothSocket = socket // Guardamos el socket globalmente
-//
-//                // 7. Actualizamos la UI (volviendo al hilo principal)
-//                withContext(Dispatchers.Main) {
-//                    textViewSystemStatus.text = "¡Conectado a ${device.name}!"
-//                    textViewConnectionStatus.text = "Conexión establecida"
-//                    // Habilitamos los controles
-//                    //findViewById<com.google.android.material.switchmaterial.SwitchMaterial>(R.id.switchAlarm).isEnabled = true
-//                     switchAlarm.isEnabled = true //
-//                     }
-//
-//                // 8. (El próximo paso será empezar a leer datos)
-//                // startReadingData(bluetoothSocket)
-//
-//            } catch (e: Exception) {
-//                // 9. Si algo falla...
-//                socket?.close()
-//                withContext(Dispatchers.Main) {
-//                    textViewSystemStatus.text = "Error de conexión"
-//                    textViewConnectionStatus.text = "Fallo al conectar: ${e.message}"
-//                }
-//            }
-//        }
+                // 8. Actualizamos la UI (volviendo al hilo principal)
+                withContext(Dispatchers.Main) {
+                    textViewSystemStatus.text = "¡Conectado a ${device.name}!"
+                    textViewConnectionStatus.text = "Conexión establecida"
+                    // Habilitamos los controles
+                    switchAlarm.isEnabled = true
+                    buttonBuzzerTest.isEnabled = true
+                    buttonLightTest.isEnabled = true
+                }
+
+                // Ahora que estamos conectados, empezamos a leer datos del Arduino
+                startReadingData(bluetoothSocket)
+
+            } catch (e: Exception) {
+                // 10. Si algo falla...
+                socket?.close()
+                withContext(Dispatchers.Main) {
+                    textViewSystemStatus.text = "Error de conexión"
+                    // (El error "read failed" que veías antes ahora será un error real)
+                    textViewConnectionStatus.text = "Fallo al conectar: ${e.message}"
+                }
+            }
+        }
     }
+
     override fun onDestroy() {
         super.onDestroy()
         // Apagamos la "antena" para evitar fugas de memoria
