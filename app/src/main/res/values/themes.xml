@@ -1,0 +1,7 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.IoT_Security_App" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    </style>
+
+    <style name="Theme.IoT_Security_App" parent="Base.Theme.IoT_Security_App" />
+</resources>

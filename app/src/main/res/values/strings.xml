@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">IoT_Security_App</string>
+
+    <string name="connect_button_text">Conectar</string>
+
+</resources>
